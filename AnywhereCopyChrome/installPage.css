@@ -1,0 +1,51 @@
+html{
+	background: url('maintheme.png') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size:cover;
+}
+
+body{
+	min-width:700px;
+	min-height:700px;
+}
+
+.registered{
+	background: url('registrationsuccessful.png') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size:cover;
+}
+
+.centerdiv{
+	width:350px;
+	height:120px;
+	min-width:50px;
+	min-height:50px;
+	margin:-150px 0 0 -175px;
+	overflow:auto;
+}
+
+#nameposition{
+	position:absolute;
+	top:70%;
+	left:50%;
+}
+
+#passwdposition{
+	position:absolute;
+	top:50%;
+	left:50%;
+}
+
+#confirmposition{
+	position:absolute;
+	top:50%;
+	left:50%;
+}
+
+#registering{
+	
+}

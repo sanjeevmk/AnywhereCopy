@@ -1,0 +1,30 @@
+{
+
+	"manifest_version": 2,
+
+	"name" : "Anywhere Copy",
+	"description" : "This extension copies stuff to any device or machine you want",
+	"version" : "1.0",
+
+	"permissions": [
+		"contextMenus",
+		"http://*/*",
+		"https://*/*",
+		"http://*.elasticbeanstalk.com/*"
+	],
+	
+	"browser_action":{
+		"default_icon":"icon128.png",
+		"default_popup":"popup.html"
+	},
+	
+	"icons":{
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	},
+	
+	"background": {
+		"scripts": ["menuitem.js"]
+	}
+}
