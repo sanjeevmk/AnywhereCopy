@@ -13,6 +13,7 @@ var clickHandler = function(info,tab){
 		if(info.linkUrl){
 			xhr.open("POST",url,true);
 			xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			//var newUrl = info.linkUrl.replace('http://','');
 			xhr.send("userId="+userId+"&selected="+info.linkUrl);
 		}
 		
@@ -23,33 +24,24 @@ var clickHandler = function(info,tab){
 		}	
 }
 
-function install_check(){
-	if(localStorage.getItem('isInstalled')){
-		return;
-	}
-
-		chrome.contextMenus.create(
+chrome.contextMenus.create(
 		{
 			"title": "Copy Anywhere",
 			"contexts" : ["page","selection","image","link"],
 			"onclick" : clickHandler
 		});
-	
-	localStorage.setItem('isInstalled','true');
-}
+		
 
-install_check();
-
-
-$(document).ready(function(){
-	$("form").submit(
-		function(event){
-				event.preventDefault();
-				$('#registering').css("visibility","visible");
-				var values = $(this).serialize();
-				var username = $('#usernamefield').val();
+var values = "dummy";
 			
-				var request = $.ajax(
+function install_check(){
+	
+			if(localStorage.getItem('isInstalled')){
+				return;
+			}
+			
+			$(document).ready(function(){
+				$.ajax(
 					{
 						url:"http://anywherecopy.elasticbeanstalk.com/signup.php",
 						type: "post",
@@ -57,25 +49,30 @@ $(document).ready(function(){
 						data: values,
 						success: function(data){
 							if($.trim(data.where) == 'uname'){
-								$("#unameresult").text(data.message);	
+								
 							}
 							if($.trim(data.where) == 'confirm'){
-								$('#confirmresult').text(data.message);
+							
 							}
 							if($.trim(data.status) == 'success'){
-								localStorage['userId'] = username;
-								chrome.tabs.create({url: 'registered.html'});
+								//alert('Enter this pin in the Android App :: '+ $.trim(data.identity));
+								alert('Enter this PIN now, in the Android App:'+$.trim(data.identity));
+								localStorage['userId'] = $.trim(data.identity);
+								
+								document.cookie = "userpin"+"="+$.trim(data.identity); 
+								
+								chrome.tabs.create({"url":'registered.html'});	
+								
 							}
 						},
 						error: function(data){
-							
+							alert('Failure');
 						}
 					}
 				);
-				
-		}
-		
-	);
-	
-	
-});
+			});
+			
+			localStorage.setItem('isInstalled','true');
+}
+
+install_check();

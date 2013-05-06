@@ -1,6 +1,9 @@
 package com.anywherecopy;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +17,27 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class AnywhereCopy extends Activity {
 	
+	public Boolean signedIn = false;
+	public StringBuffer bufferReceived = new StringBuffer("");
+	public String username = new String("");
 	public static String PREF_NAME = new String();
 	public static String PREF_ID = new String();
 	public ProgressBar pBar;
@@ -46,7 +54,14 @@ public class AnywhereCopy extends Activity {
 		SharedPreferences pref = getSharedPreferences(AnywhereCopy.PREF_NAME,MODE_PRIVATE);
 		String usernamesaved = pref.getString(AnywhereCopy.PREF_ID, null);
 		
-		if(usernamesaved==null){
+		try {
+			FileInputStream fis = openFileInput("acpin");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			usernamesaved="";
+		}
+		
+		if(usernamesaved==null || usernamesaved==""){
 		
 			setContentView(R.layout.activity_anywhere_copy);
 			
@@ -54,71 +69,86 @@ public class AnywhereCopy extends Activity {
 			TextView signIn = (TextView)findViewById(R.id.signIn); 
 			final EditText uName = (EditText)findViewById(R.id.enterUser); 
 			final TextView uNameError = (TextView)findViewById(R.id.enterUserName);
-			final EditText passWord = (EditText)findViewById(R.id.enterPassword);
-			final TextView passwordError = (TextView)findViewById(R.id.enterPasswordError);
 			final Button signInButton = (Button)findViewById(R.id.signInButton);
 			
 			signInButton.setOnClickListener(new Button.OnClickListener(){
 	
 				@Override
-				public void onClick(View arg0) {
+				public void onClick(View v) {
 					// TODO Auto-generated method stub
-					signInButton.setText("Signing in...");
+					
 					if(uName.getText().equals("")){
 						uNameError.setText("Enter User name");
 						return;
 					}
+				
+					final ProgressDialog progressDialog = ProgressDialog.show(AnywhereCopy.this, "", "Signing In");
 					
-					if(passWord.getText().equals("")){
-						passwordError.setText("Enter Password");
-						return;
-					}
-										
-					String username = uName.getText().toString();
-					String password = passWord.getText().toString();
-	
-					HttpClient httpClient = new DefaultHttpClient();
-					HttpPost httppost = new HttpPost("http://anywherecopy.elasticbeanstalk.com/signin.php");
-								
-					List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-					nameValuePairs.add(new BasicNameValuePair("uname",username));
-					nameValuePairs.add(new BasicNameValuePair("passwd",password));
-							
-					try{
-						httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-						HttpResponse response = httpClient.execute(httppost);
-								
-						BufferedReader in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-						StringBuffer sb = new StringBuffer("");
-						String line = "";
-								
-						while((line = in.readLine())!=null){
-							sb.append(line);
-						}
-							
-						in.close();
-	
-						Log.e(TAG,sb.toString());
-								
-						if(sb.toString().equalsIgnoreCase("success")){
-							userId = username;
-							getSharedPreferences(PREF_NAME,MODE_PRIVATE)
-								.edit()
-								.putString(PREF_ID,userId)
-								.commit();
+					final Handler handler = new Handler(){
+						public void handleMessage(Message msg){
+							progressDialog.dismiss();
 							setContentView(R.layout.startusing);
 						}
-							
-					}catch(Exception e){
-						e.printStackTrace();
-					}
+					};
+						new Thread(new Runnable(){
+							public void run(){
+								try{
+		
+									username = uName.getText().toString();
+									HttpClient httpClient = new DefaultHttpClient();
+									HttpPost httppost = new HttpPost("http://anywherecopy.elasticbeanstalk.com/signin.php");
+											
+									List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+									nameValuePairs.add(new BasicNameValuePair("uname",username));
 								
+									httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+									HttpResponse response = httpClient.execute(httppost);
+								
+									BufferedReader in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+									StringBuffer sb = new StringBuffer("");
+									String line = "";
+										
+									while((line = in.readLine())!=null){
+										sb.append(line);
+									}
+									
+									in.close();
+								
+									Log.e(TAG,sb.toString());
+									bufferReceived = sb;
+									
+									if(bufferReceived.toString().equalsIgnoreCase("success")){
+										userId = username;
+										Log.e(TAG,"Success received");
+										try{
+											FileOutputStream fos = openFileOutput("acpin",Context.MODE_PRIVATE);
+											fos.write(userId.getBytes());
+											fos.close();
+										}catch(Exception e){
+											
+										}
+										Log.e(TAG,"Success received again");
+										getSharedPreferences(PREF_NAME,MODE_PRIVATE)
+											.edit()
+											.putString(PREF_ID,userId)
+											.commit();
+										
+										signedIn =  true;
+										
+										
+									}
+								}catch(Exception e){
+									
+								}
+								handler.sendEmptyMessage(0);
+							}
+						 }
+						).start();
 				}
 			});
 			
 			signIn.setTypeface(tf);
 			uName.setTypeface(tf);
-			passWord.setTypeface(tf);
 			signInButton.setTypeface(tf);
 			}else{
 					startActivity(new Intent(this,PasteFromServer.class));
@@ -147,6 +177,4 @@ public class AnywhereCopy extends Activity {
 		getMenuInflater().inflate(R.menu.activity_anywhere_copy, menu);
 		return true;
 	}
-
-	
 }

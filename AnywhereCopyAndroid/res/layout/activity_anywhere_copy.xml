@@ -24,10 +24,10 @@
  	<TextView
  	    android:id="@+id/userName"
  	    android:layout_below="@id/signIn"
- 	    android:layout_marginTop="20dp" 
+ 	    android:layout_marginTop="80dp" 
  	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:text="User Name"
+	    android:text="Enter PIN"
 	    android:textColor="#FFFFFF"
 	    android:textSize="15dp"
  	    />
@@ -47,39 +47,13 @@
 	    android:textColor="#FFFFFF"
 	    android:textSize="12dp"
  	    />
-	<TextView
- 	    android:id="@+id/password"
- 	    android:layout_below="@id/enterUser"
- 	    android:layout_marginTop="20dp" 
- 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:text="Password"
-	    android:textColor="#FFFFFF"
-	    android:textSize="15dp"
- 	    />
-	<EditText
-	    android:id="@+id/enterPassword" 
-	    android:layout_below="@id/password"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:inputType="textPassword"
-	    />
-	<TextView
- 	    android:id="@+id/enterPasswordError"
- 	    android:layout_below="@id/enterPassword" 
- 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_marginTop="-5dp"
-	    android:textColor="#FFFFFF"
-	    android:textSize="12dp"
- 	    />
 	<Button
 	    android:id="@+id/signInButton"
-	    android:layout_below="@id/enterPassword"
+	    android:layout_below="@id/enterUserName"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_marginTop="20dp"
-	    android:background="@android:color/transparent"
+	    android:background="#3300CC"
 	    android:layout_centerHorizontal="true"
 	    android:text="Sign In"
 	    android:textColor="#FFFFFF"
